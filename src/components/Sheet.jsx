@@ -43,7 +43,7 @@ export default function Sheet({ open, onClose, title, children }) {
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto flex-1 px-6 pb-8">
+        <div className="overflow-y-auto flex-1 px-6 pb-28">
           {children}
         </div>
       </div>
