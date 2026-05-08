@@ -1,0 +1,170 @@
+@import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-jakarta: 'Plus Jakarta Sans', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+
+  --color-bg: #F7F5F1;
+  --color-card: #FFFFFF;
+  --color-dark: #131210;
+  --color-dark-2: #1E1C19;
+
+  --color-amber-50: #FFFBEB;
+  --color-amber-100: #FEF3C7;
+  --color-amber-200: #FDE68A;
+  --color-amber-300: #FCD34D;
+  --color-amber-400: #FBBF24;
+  --color-amber-500: #F59E0B;
+  --color-amber-600: #D97706;
+  --color-amber-700: #B45309;
+  --color-amber-900: #78350F;
+
+  --color-stone-50: #FAFAF9;
+  --color-stone-100: #F5F5F4;
+  --color-stone-200: #E7E5E4;
+  --color-stone-300: #D6D3D1;
+  --color-stone-400: #A8A29E;
+  --color-stone-500: #78716C;
+  --color-stone-600: #57534E;
+  --color-stone-700: #44403C;
+  --color-stone-800: #292524;
+  --color-stone-900: #1C1917;
+
+  --color-zinc-800: #27272A;
+  --color-zinc-900: #18181B;
+
+  --color-emerald-400: #34D399;
+  --color-emerald-500: #10B981;
+  --color-emerald-600: #059669;
+  --color-emerald-50: #ECFDF5;
+  --color-emerald-100: #D1FAE5;
+
+  --color-violet-400: #A78BFA;
+  --color-violet-500: #8B5CF6;
+  --color-violet-600: #7C3AED;
+  --color-violet-50: #F5F3FF;
+  --color-violet-100: #EDE9FE;
+
+  --color-rose-400: #FB7185;
+  --color-rose-500: #F43F5E;
+  --color-rose-600: #E11D48;
+  --color-rose-50: #FFF1F2;
+  --color-rose-100: #FFE4E6;
+
+  --color-blue-400: #60A5FA;
+  --color-blue-500: #3B82F6;
+  --color-blue-50: #EFF6FF;
+  --color-blue-100: #DBEAFE;
+
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-card-hover: 0 2px 4px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.10);
+  --shadow-fab: 0 4px 16px rgba(217,119,6,0.40), 0 1px 4px rgba(0,0,0,0.12);
+  --shadow-nav: 0 -1px 0 rgba(0,0,0,0.04), 0 -8px 32px rgba(0,0,0,0.08);
+}
+
+:root {
+  --page-bg:        #F7F5F1;
+  --card-bg:        #FFFFFF;
+  --card-subtle:    #F5F5F4;
+  --tab-bg:         #E7E5E4;
+  --text-primary:   #131210;
+  --text-secondary: #57534E;
+  --text-muted:     #A8A29E;
+  --border:         #E7E5E4;
+  --border-subtle:  #F5F5F4;
+}
+
+.dark {
+  /* Semantic theme tokens */
+  --page-bg:        #0F0E0C;
+  --card-bg:        #1A1815;
+  --card-subtle:    #252320;
+  --tab-bg:         #2E2C28;
+  --text-primary:   #F5F5F4;
+  --text-secondary: #A8A29E;
+  --text-muted:     #6B6860;
+  --border:         #2E2C28;
+  --border-subtle:  #252320;
+  --shadow-card:    0 1px 2px rgba(0,0,0,0.25), 0 4px 16px rgba(0,0,0,0.35);
+
+  /* Override Tailwind's stone color vars — all stone-* utilities update automatically */
+  --color-stone-50:  #1A1815;
+  --color-stone-100: #252320;
+  --color-stone-200: #2E2C28;
+  --color-stone-300: #3A3835;
+  --color-stone-400: #6B6860;
+  --color-stone-500: #A8A29E;
+  --color-stone-600: #BEB9B5;
+  --color-stone-700: #D6D3D0;
+  --color-stone-800: #E8E5E2;
+  --color-stone-900: #F5F5F4;
+}
+
+/* bg-white needs an explicit override — 'white' is not in @theme */
+.dark .bg-white { background-color: var(--card-bg) !important; }
+
+/* Input/form element overrides */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: var(--card-subtle) !important;
+  color: var(--text-primary) !important;
+}
+.dark input:focus,
+.dark textarea:focus {
+  background-color: var(--card-bg) !important;
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1;
+}
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(0.7);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--page-bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100%;
+  background: var(--page-bg);
+  position: relative;
+}
+
+h1, h2, h3, .font-jakarta {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Smooth scrolling */
+main {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Number formatting */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
