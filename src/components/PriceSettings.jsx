@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, History } from 'lucide-react'
+import { format } from 'date-fns'
 import { useStore } from '../store/useStore'
 import Sheet from './Sheet'
-import Button from './Button'
 
 export default function PriceSettings({ open, onClose }) {
-  const { prices, updatePrice } = useStore()
+  const { prices, priceHistory, updatePrice } = useStore()
   const [values, setValues] = useState({})
   const [saving, setSaving] = useState(null)
   const [saved, setSaved] = useState(null)
@@ -20,7 +20,8 @@ export default function PriceSettings({ open, onClose }) {
     await updatePrice(size, amount)
     setSaving(null)
     setSaved(size)
-    setTimeout(() => setSaved(null), 2000)
+    setValues(v => ({ ...v, [size]: undefined }))
+    setTimeout(() => setSaved(null), 2500)
   }
 
   return (
@@ -34,12 +35,17 @@ export default function PriceSettings({ open, onClose }) {
           const label = size === 'small' ? 'Small Eggs' : 'Large Eggs'
           const isSaved = saved === size
           const isSaving = saving === size
+          const history = priceHistory
+            .filter(h => h.size === size)
+            .slice(0, 5) // show last 5 changes
 
           return (
             <div key={size} className="flex flex-col gap-2">
               <label className="text-xs font-semibold text-stone-500 uppercase tracking-widest font-jakarta">
                 {label}
               </label>
+
+              {/* Input row */}
               <div className="flex gap-2 items-center">
                 <div className="flex-1 relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 text-sm font-inter">GH₵</span>
@@ -60,9 +66,43 @@ export default function PriceSettings({ open, onClose }) {
                     : { background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: 'white', boxShadow: '0 4px 14px rgba(217,119,6,0.3)' }
                   }
                 >
-                  {isSaved ? <><CheckCircle2 size={16} /> Saved</> : isSaving ? 'Saving...' : 'Save'}
+                  {isSaved ? <><CheckCircle2 size={16} /> Saved</> : isSaving ? 'Saving…' : 'Save'}
                 </button>
               </div>
+
+              {/* Price history */}
+              {history.length > 0 && (
+                <div className="mt-1 flex flex-col gap-0 rounded-2xl overflow-hidden border border-stone-100">
+                  <div className="flex items-center gap-1.5 px-3 py-2 bg-stone-50">
+                    <History size={12} color="#A8A29E" />
+                    <span className="text-[10px] font-semibold text-stone-400 uppercase tracking-widest font-jakarta">
+                      Price History
+                    </span>
+                  </div>
+                  {history.map((h, i) => (
+                    <div
+                      key={h.id}
+                      className="flex items-center justify-between px-3 py-2.5 border-t border-stone-100"
+                      style={{ background: i === 0 ? '#FFFBEB' : 'white' }}
+                    >
+                      <span className="text-xs text-stone-500 font-inter">
+                        {format(new Date(h.changed_at), 'MMM d, yyyy · h:mm a')}
+                        {i === 0 && (
+                          <span
+                            className="ml-2 text-[10px] font-semibold px-1.5 py-0.5 rounded-full font-jakarta"
+                            style={{ background: '#FEF3C7', color: '#D97706' }}
+                          >
+                            current
+                          </span>
+                        )}
+                      </span>
+                      <span className="text-sm font-bold tabular-nums font-jakarta text-stone-800">
+                        GH₵ {Number(h.amount).toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )
         })}
