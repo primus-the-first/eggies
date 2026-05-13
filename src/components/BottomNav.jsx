@@ -1,7 +1,6 @@
 import { NavLink } from 'react-router-dom'
-import { Home, DollarSign, CreditCard, Package, FileText, ShieldCheck, LogOut, Sun, Moon } from 'lucide-react'
+import { Home, DollarSign, CreditCard, Package, FileText, ShieldCheck } from 'lucide-react'
 import { useStore } from '../store/useStore'
-import { useTheme } from '../lib/useTheme'
 
 const SELLER_TABS = [
   { to: '/sales',     label: 'Sales',   Icon: DollarSign },
@@ -20,8 +19,7 @@ const ADMIN_TABS = [
 ]
 
 export default function BottomNav() {
-  const { profile, signOut } = useStore()
-  const { dark, toggle } = useTheme()
+  const { profile } = useStore()
   const isAdmin = profile?.role === 'super_admin'
   const tabs = isAdmin ? ADMIN_TABS : SELLER_TABS
 
@@ -31,7 +29,7 @@ export default function BottomNav() {
       style={{ background: 'linear-gradient(to top, var(--page-bg) 60%, transparent)' }}
     >
       {/* User identity chip */}
-      <div className="flex items-center justify-between mb-2 px-1">
+      <div className="flex items-center justify-center mb-2 px-1">
         <div className="flex items-center gap-2">
           <div
             className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold font-jakarta flex-shrink-0"
@@ -55,26 +53,6 @@ export default function BottomNav() {
               ADMIN
             </span>
           )}
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Theme toggle */}
-          <button
-            onClick={toggle}
-            className="w-9 h-9 rounded-xl flex items-center justify-center transition-all active:scale-95"
-            style={{ background: '#F5F4F2' }}
-            aria-label="Toggle theme"
-          >
-            {dark ? <Sun size={15} color="#78716C" /> : <Moon size={15} color="#78716C" />}
-          </button>
-          {/* Sign out */}
-          <button
-            onClick={signOut}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all active:scale-95"
-            style={{ background: '#F5F4F2' }}
-          >
-            <LogOut size={14} color="#78716C" />
-            <span className="text-xs font-semibold text-stone-500 font-jakarta">Sign out</span>
-          </button>
         </div>
       </div>
 

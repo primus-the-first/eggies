@@ -8,6 +8,7 @@ import FAB from '../components/FAB'
 import Sheet from '../components/Sheet'
 import Input from '../components/Input'
 import Button from '../components/Button'
+import HeaderActions from '../components/HeaderActions'
 
 const FILTERS = ['Today', 'This Week', 'All']
 
@@ -36,10 +37,13 @@ export default function Sales() {
     <div className="flex flex-col gap-4 px-4 pt-12 pb-32">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-stone-900 font-jakarta">Sales</h1>
-        <span className="text-xs font-inter px-3 py-1.5 rounded-full" style={{ background: 'var(--card-bg)', color: 'var(--text-muted)', boxShadow: 'var(--shadow-card)' }}>
-          {filtered.length} records
-        </span>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-stone-900 font-jakarta">Sales</h1>
+          <span className="text-xs font-inter px-3 py-1.5 rounded-full" style={{ background: 'var(--card-bg)', color: 'var(--text-muted)', boxShadow: 'var(--shadow-card)' }}>
+            {filtered.length}
+          </span>
+        </div>
+        <HeaderActions />
       </div>
 
       {/* Filter tabs */}

@@ -7,6 +7,7 @@ import FAB from '../components/FAB'
 import Sheet from '../components/Sheet'
 import Input from '../components/Input'
 import Button from '../components/Button'
+import HeaderActions from '../components/HeaderActions'
 
 const AVATAR_COLORS = [
   { bg: '#FEF3C7', color: '#D97706' },
@@ -58,7 +59,10 @@ export default function Credit() {
 
   return (
     <div className="flex flex-col gap-4 px-4 pt-12 pb-32">
-      <h1 className="text-2xl font-bold text-stone-900 font-jakarta">Credit</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-stone-900 font-jakarta">Credit</h1>
+        <HeaderActions />
+      </div>
 
       {/* Outstanding banner */}
       {totalOutstanding > 0 && (

@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react'
 import { format, isToday } from 'date-fns'
-import { TrendingUp, Egg, AlertTriangle, CreditCard, Settings, Sun, Moon } from 'lucide-react'
+import { TrendingUp, Egg, AlertTriangle, CreditCard, Settings } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import Card from '../components/Card'
 import Badge from '../components/Badge'
 import PriceSettings from '../components/PriceSettings'
-import { useTheme } from '../lib/useTheme'
+import HeaderActions from '../components/HeaderActions'
 
 export default function Dashboard() {
   const { sales, inventoryEntries, creditTransactions, creditCustomers, fetchAll, loading } = useStore()
   const [priceOpen, setPriceOpen] = useState(false)
-  const { dark, toggle } = useTheme()
 
   useEffect(() => { fetchAll() }, [])
 
@@ -61,14 +60,7 @@ export default function Dashboard() {
             <h1 className="text-white text-2xl font-bold font-jakarta">{greeting} 👋</h1>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={toggle}
-              className="w-10 h-10 rounded-2xl flex items-center justify-center transition-colors active:bg-white/20"
-              style={{ background: 'rgba(255,255,255,0.08)' }}
-              aria-label="Toggle theme"
-            >
-              {dark ? <Sun size={18} color="#A8A29E" /> : <Moon size={18} color="#A8A29E" />}
-            </button>
+            <HeaderActions variant="dark" />
             <button
               onClick={() => setPriceOpen(true)}
               className="w-10 h-10 rounded-2xl flex items-center justify-center transition-colors active:bg-white/20"

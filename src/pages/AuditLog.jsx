@@ -3,6 +3,7 @@ import { format } from 'date-fns'
 import { ShieldCheck, User, Clock, Tag } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import Card from '../components/Card'
+import HeaderActions from '../components/HeaderActions'
 
 const ACTION_META = {
   price_updated:   { color: '#D97706', bg: '#FEF3C7', label: 'Price Updated' },
@@ -27,17 +28,20 @@ export default function AuditLog() {
   return (
     <div className="flex flex-col gap-4 px-4 pt-12 pb-32">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div
-          className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
-          style={{ background: 'linear-gradient(135deg, #7C3AED, #8B5CF6)', boxShadow: '0 4px 14px rgba(124,58,237,0.3)' }}
-        >
-          <ShieldCheck size={18} color="white" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
+            style={{ background: 'linear-gradient(135deg, #7C3AED, #8B5CF6)', boxShadow: '0 4px 14px rgba(124,58,237,0.3)' }}
+          >
+            <ShieldCheck size={18} color="white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-stone-900 font-jakarta">Audit Log</h1>
+            <p className="text-xs text-stone-400 font-inter">{filtered.length} events</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-stone-900 font-jakarta">Audit Log</h1>
-          <p className="text-xs text-stone-400 font-inter">{filtered.length} events</p>
-        </div>
+        <HeaderActions />
       </div>
 
       {/* Filter chips */}

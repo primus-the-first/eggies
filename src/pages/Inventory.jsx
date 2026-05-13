@@ -7,6 +7,7 @@ import FAB from '../components/FAB'
 import Sheet from '../components/Sheet'
 import Input from '../components/Input'
 import Button from '../components/Button'
+import HeaderActions from '../components/HeaderActions'
 
 const ENTRY_TYPES = [
   { value: 'received',  label: 'Received',  icon: PackagePlus, color: '#3B82F6', bg: '#EFF6FF' },
@@ -31,7 +32,10 @@ export default function Inventory() {
 
   return (
     <div className="flex flex-col gap-4 px-4 pt-12 pb-32">
-      <h1 className="text-2xl font-bold text-stone-900 font-jakarta">Stock</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-stone-900 font-jakarta">Stock</h1>
+        <HeaderActions />
+      </div>
 
       {/* Hero stock card */}
       <div

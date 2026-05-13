@@ -3,6 +3,7 @@ import { format, isToday, isThisWeek, isThisMonth, startOfWeek, endOfWeek, parse
 import { Download, TrendingUp, Egg, AlertTriangle, Banknote, Smartphone } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { generatePDF } from '../lib/pdf'
+import HeaderActions from '../components/HeaderActions'
 
 const PERIODS = ['Daily', 'Weekly', 'Monthly', 'Custom']
 
@@ -76,6 +77,7 @@ export default function Reports() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-stone-900 font-jakarta">Reports</h1>
+        <HeaderActions />
       </div>
 
       {/* Period selector */}
