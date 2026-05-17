@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { format, isToday, isThisWeek } from 'date-fns'
-import { Banknote, Smartphone, ChevronRight } from 'lucide-react'
+import { Banknote, Smartphone } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import Card from '../components/Card'
 import Badge from '../components/Badge'
@@ -11,15 +11,16 @@ import Button from '../components/Button'
 import HeaderActions from '../components/HeaderActions'
 
 const FILTERS = ['Today', 'This Week', 'All']
+const EGGS_PER_CRATE = 30
 
 
 export default function Sales() {
-  const { sales, fetchSales, addSale, prices, fetchPrices } = useStore()
+  const { sales, fetchSales, addSale } = useStore()
 
   const [sheetOpen, setSheetOpen] = useState(false)
   const [filter, setFilter] = useState('Today')
 
-  useEffect(() => { fetchSales(); fetchPrices() }, [])
+  useEffect(() => { fetchSales() }, [])
 
   const filtered = sales.filter(s => {
     const d = new Date(s.created_at)
@@ -105,7 +106,7 @@ export default function Sales() {
       )}
 
       <FAB onClick={() => setSheetOpen(true)} label="Record sale" />
-      <AddSaleSheet open={sheetOpen} onClose={() => setSheetOpen(false)} onSave={addSale} prices={prices} />
+      <AddSaleSheet open={sheetOpen} onClose={() => setSheetOpen(false)} onSave={addSale} />
     </div>
   )
 }
@@ -123,7 +124,12 @@ function Metric({ label, value, color, icon }) {
 }
 
 function SaleItem({ sale }) {
-  const sizeLabel = sale.size ? (sale.size === 'small' ? 'Small' : 'Large') : null
+  const isCrates = sale.size && sale.quantity % EGGS_PER_CRATE === 0 && sale.quantity >= EGGS_PER_CRATE
+  const crates = sale.quantity / EGGS_PER_CRATE
+  const qtyLabel = isCrates
+    ? `${crates} crate${crates !== 1 ? 's' : ''} (${sale.quantity} eggs)`
+    : `${sale.quantity} egg${sale.quantity !== 1 ? 's' : ''}`
+
   return (
     <div
       className="bg-white rounded-3xl px-4 py-3.5 flex items-center justify-between"
@@ -141,11 +147,11 @@ function SaleItem({ sale }) {
         </div>
         <div>
           <p className="text-sm font-semibold text-stone-900 font-jakarta">
-            {sale.quantity} eggs
-            {sizeLabel && <span className="text-stone-400 font-normal text-xs"> · {sizeLabel}</span>}
+            {qtyLabel}
           </p>
           <p className="text-xs text-stone-400 font-inter mt-0.5">
             {format(new Date(sale.created_at), 'MMM d · h:mm a')}
+            {sale.size ? ` · ${sale.size.charAt(0).toUpperCase() + sale.size.slice(1)}` : ''}
             {sale.note ? ` · ${sale.note}` : ''}
           </p>
         </div>
@@ -158,29 +164,49 @@ function SaleItem({ sale }) {
   )
 }
 
-function AddSaleSheet({ open, onClose, onSave, prices }) {
+function AddSaleSheet({ open, onClose, onSave }) {
+  const [unit, setUnit] = useState('crates')
   const [size, setSize] = useState('small')
   const [qty, setQty] = useState('')
+  const [price, setPrice] = useState('')
   const [method, setMethod] = useState('cash')
   const [note, setNote] = useState('')
   const [saving, setSaving] = useState(false)
   const [qtyError, setQtyError] = useState('')
+  const [priceError, setPriceError] = useState('')
 
-  const priceObj = prices.find(p => p.size === size)
-  const price = priceObj?.amount ?? (size === 'small' ? 50 : 55)
+  const q = Number(qty)
+  const p = Number(price)
+  const hasPreview = qty && !isNaN(qty) && q > 0 && price && !isNaN(price) && p > 0
+  const total = hasPreview ? (unit === 'crates' ? q * p : p) : null
 
-  const reset = () => { setSize('small'); setQty(''); setMethod('cash'); setNote(''); setQtyError('') }
+  const handleUnitChange = (u) => {
+    setUnit(u); setSize('small'); setQty(''); setPrice('')
+    setQtyError(''); setPriceError('')
+  }
+
+  const reset = () => {
+    setUnit('crates'); setSize('small'); setQty(''); setPrice('')
+    setMethod('cash'); setNote(''); setQtyError(''); setPriceError('')
+  }
   const handleClose = () => { reset(); onClose() }
 
   const handleSave = async () => {
-    if (!qty || isNaN(qty) || Number(qty) <= 0) { setQtyError('Enter a valid quantity'); return }
+    let valid = true
+    if (!qty || isNaN(qty) || q <= 0) { setQtyError('Enter a valid quantity'); valid = false }
+    if (!price || isNaN(price) || p <= 0) { setPriceError('Enter a valid price'); valid = false }
+    if (!valid) return
+
+    const savedTotal = unit === 'crates' ? q * p : p
+    const savedQty = unit === 'crates' ? q * EGGS_PER_CRATE : q
+
     setSaving(true)
     const { error } = await onSave({
-      quantity: Number(qty),
-      price_per_egg: price,
-      total: Number(qty) * price,
+      quantity: savedQty,
+      price_per_egg: savedTotal / savedQty,
+      total: savedTotal,
       payment_method: method,
-      size,
+      size: unit === 'crates' ? size : null,
       note: note.trim() || null,
     })
     setSaving(false)
@@ -191,35 +217,49 @@ function AddSaleSheet({ open, onClose, onSave, prices }) {
     <Sheet open={open} onClose={handleClose} title="Record Sale">
       <div className="flex flex-col gap-5">
 
-        {/* Egg size */}
+        {/* Sell by */}
         <div>
-          <p className="text-xs font-semibold text-stone-500 uppercase tracking-widest font-jakarta mb-3">Egg Size</p>
+          <p className="text-xs font-semibold text-stone-500 uppercase tracking-widest font-jakarta mb-3">Sell By</p>
           <div className="flex gap-3">
-            {(prices.length > 0
-              ? prices
-              : [{ size: 'small', label: 'Small', amount: 50 }, { size: 'large', label: 'Large', amount: 55 }]
-            ).map(p => (
+            {[
+              { v: 'crates', l: '📦 Crates' },
+              { v: 'eggs',   l: '🥚 Individual Eggs' },
+            ].map(({ v, l }) => (
               <button
-                key={p.size}
-                onClick={() => setSize(p.size)}
-                className="flex-1 py-4 rounded-2xl font-jakarta transition-all duration-200 flex flex-col items-center gap-1"
-                style={size === p.size ? {
-                  background: 'linear-gradient(135deg, #F59E0B, #D97706)',
-                  boxShadow: '0 4px 14px rgba(217,119,6,0.3)',
-                  color: 'white',
-                } : { background: 'var(--card-subtle)', color: 'var(--text-secondary)' }}
-              >
-                <span className="text-base font-bold">{p.label}</span>
-                <span className="text-xs font-medium" style={{ color: size === p.size ? 'rgba(255,255,255,0.7)' : '#A8A29E' }}>
-                  GH₵ {p.amount}
-                </span>
-              </button>
+                key={v}
+                onClick={() => handleUnitChange(v)}
+                className="flex-1 py-3.5 rounded-2xl font-semibold text-sm font-jakarta transition-all duration-200"
+                style={unit === v
+                  ? { background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: 'white', boxShadow: '0 4px 14px rgba(217,119,6,0.3)' }
+                  : { background: 'var(--card-subtle)', color: 'var(--text-secondary)' }
+                }
+              >{l}</button>
             ))}
           </div>
         </div>
 
+        {/* Egg size — crates only, labels only */}
+        {unit === 'crates' && (
+          <div>
+            <p className="text-xs font-semibold text-stone-500 uppercase tracking-widest font-jakarta mb-3">Egg Size</p>
+            <div className="flex gap-3">
+              {[{ v: 'small', l: 'Small' }, { v: 'large', l: 'Large' }].map(({ v, l }) => (
+                <button
+                  key={v}
+                  onClick={() => setSize(v)}
+                  className="flex-1 py-3.5 rounded-2xl font-semibold text-sm font-jakarta transition-all duration-200"
+                  style={size === v
+                    ? { background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: 'white', boxShadow: '0 4px 14px rgba(217,119,6,0.3)' }
+                    : { background: 'var(--card-subtle)', color: 'var(--text-secondary)' }
+                  }
+                >{l}</button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <Input
-          label="Number of Crates"
+          label={unit === 'crates' ? 'Number of Crates' : 'Number of Eggs'}
           type="number"
           inputMode="numeric"
           placeholder="0"
@@ -228,15 +268,30 @@ function AddSaleSheet({ open, onClose, onSave, prices }) {
           error={qtyError}
         />
 
+        <Input
+          label={unit === 'crates' ? 'Price per Crate (GH₵)' : 'Price (GH₵)'}
+          type="number"
+          inputMode="decimal"
+          placeholder="0.00"
+          value={price}
+          onChange={e => { setPrice(e.target.value); setPriceError('') }}
+          error={priceError}
+        />
+
         {/* Total preview */}
-        {qty && !isNaN(qty) && Number(qty) > 0 && (
+        {total !== null && (
           <div
             className="rounded-2xl px-5 py-4 flex justify-between items-center"
             style={{ background: 'linear-gradient(135deg, #FEF3C7, #FDE68A)' }}
           >
-            <span className="text-sm text-amber-800 font-semibold font-jakarta">Total</span>
+            <div>
+              <span className="text-sm text-amber-800 font-semibold font-jakarta">Total</span>
+              {unit === 'crates' && (
+                <p className="text-xs text-amber-700 font-inter mt-0.5">{Number(qty) * EGGS_PER_CRATE} eggs · {size}</p>
+              )}
+            </div>
             <span className="text-2xl font-bold text-amber-700 tabular-nums font-jakarta">
-              GH₵ {(Number(qty) * price).toFixed(2)}
+              GH₵ {total.toFixed(2)}
             </span>
           </div>
         )}
